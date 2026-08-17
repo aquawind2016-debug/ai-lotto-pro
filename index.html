@@ -48,7 +48,6 @@
 </head>
 <body class="text-slate-800 dark:text-slate-200 transition-colors duration-200 pb-[120px]">
 
-    <!-- 네비게이션바 -->
     <nav class="sticky top-0 z-40 glass-panel border-b border-slate-200 dark:border-slate-800 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
@@ -74,7 +73,6 @@
         </div>
     </nav>
 
-    <!-- 메인 컨테이너 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
         <!-- 컨트롤 패널 -->
@@ -85,7 +83,7 @@
                     <h2 class="font-bold text-lg">AI 종합 추천 설정</h2>
                 </div>
                 <div class="flex items-center gap-3 w-full sm:w-auto">
-                    <label class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">게임 수 선택</label>
+                    <label class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">게임 수</label>
                     <select id="gameCount" class="w-full sm:w-40 p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition font-medium">
                         <option value="1">1 게임</option>
                         <option value="5">5 게임</option>
@@ -93,26 +91,6 @@
                         <option value="15">15 게임</option>
                         <option value="20" selected>20 게임</option>
                     </select>
-                </div>
-            </div>
-
-            <!-- 수동 필터 아코디언 -->
-            <div class="border-b border-slate-100 dark:border-slate-700">
-                <button onclick="toggleAccordion('filterAccordion')" class="w-full p-5 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-                    <div class="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300">
-                        <i class="fa-solid fa-user-gear text-teal-500"></i> 수동 필터 설정
-                    </div>
-                    <i id="filterAccordionIcon" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300"></i>
-                </button>
-                <div id="filterAccordion" class="hidden p-5 pt-0 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">필수 포함 번호 (쉼표 구분)</label>
-                        <input type="text" id="includeNums" placeholder="예: 7, 15" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-brand-500 transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">완전 제외 번호 (쉼표 구분)</label>
-                        <input type="text" id="excludeNums" placeholder="예: 2, 4, 10" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-brand-500 transition">
-                    </div>
                 </div>
             </div>
 
@@ -146,7 +124,6 @@
             </div>
         </div>
 
-        <!-- 탭 네비게이션 -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="flex border-b border-slate-200 dark:border-slate-700 overflow-x-auto hide-scrollbar">
                 <button onclick="switchTab('recommend')" id="btn-recommend" class="min-w-[120px] flex-1 py-4 px-2 text-center font-bold text-brand-600 border-b-2 border-brand-600 bg-brand-50 dark:bg-slate-700 transition">추천 결과</button>
@@ -180,7 +157,7 @@
                     </div>
                 </div>
 
-                <!-- 52주 정밀 통계 탭 (확장됨) -->
+                <!-- 52주 정밀 통계 탭 -->
                 <div id="tab-stats" class="hidden space-y-8">
                     <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
                         <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -229,7 +206,7 @@
                         </div>
                     </div>
 
-                    <!-- 중간 인피드 광고 배너 (체류시간 및 수익 극대화) -->
+                    <!-- 중간 인피드 광고 배너 -->
                     <div class="ad-space w-full h-[100px] my-4 shadow-sm">
                         <i class="fa-solid fa-rectangle-ad mr-2 text-slate-400"></i> 구글 애드센스 52주 통계 인피드(콘텐츠 내) 맞춤형 광고 배너 영역
                     </div>
@@ -373,7 +350,6 @@
         </div>
     </div>
 
-    <!-- 자바스크립트 엔진 -->
     <script>
         let LOTTO_DATA = [];
         let TARGET_DRAW = 0;
@@ -553,7 +529,6 @@
                 let currentConsec = 0;
                 let drawSum = 0;
                 
-                // 쌍 동반출현 카운트
                 for(let i=0; i<draw.numbers.length; i++) {
                     let n1 = draw.numbers[i];
                     drawSum += n1;
@@ -576,7 +551,6 @@
                     }
                 }
 
-                // 합계 구간 집계
                 if(drawSum < 100) sumRanges['100미만']++;
                 else if(drawSum < 120) sumRanges['100~119']++;
                 else if(drawSum < 140) sumRanges['120~139']++;
@@ -693,7 +667,7 @@
             }).join('');
         }
 
-        // 역대 당첨번호 DB 렌더링 (페이지네이션 및 인피드 광고 포함)
+        // 역대 당첨번호 DB 렌더링
         function renderDB(page) {
             if(LOTTO_DATA.length === 0) return;
             DB_CURRENT_PAGE = page;
@@ -773,7 +747,6 @@
                 `;
                 tbody.appendChild(tr);
 
-                // 목록 10개마다 인피드 광고 삽입 (수익 극대화)
                 if ((index + 1) % 10 === 0 && index !== pageData.length - 1) {
                     const adTr = document.createElement('tr');
                     adTr.innerHTML = `
@@ -813,10 +786,9 @@
             }
         }
 
-        function getRandomLottoNumbers(includeNumbers = []) {
+        function getRandomLottoNumbers() {
             let pool = Array.from({length: 45}, (_, i) => i + 1);
-            let selected = [...new Set(includeNumbers)]; 
-            pool = pool.filter(n => !selected.includes(n));
+            let selected = [];
             while (selected.length < 6) {
                 let rIdx = Math.floor(Math.random() * pool.length);
                 selected.push(pool[rIdx]);
@@ -847,16 +819,16 @@
                 const prevNumbers = LOTTO_DATA[0].numbers;
 
                 const themes = [
-                    { title: "🤖 AI 종합형", desc: "빈도, 흐름, 동반출현 등 모든 가중치를 복합 적용한 최적의 밸런스 조합입니다.", force: [] },
-                    { title: "🔥 핵심축 중심형", desc: "방금 갱신된 최근 52주 최다 빈출 핵심번호를 묶어 조합합니다.", force: [hotNumbers[0], hotNumbers[1]] },
-                    { title: "🎯 구간 몰림형", desc: "무작위 분산이 아닌, 현실적인 당첨 패턴인 20~30번대 집중 현상을 유도합니다.", force: [24, 28, 34] },
-                    { title: "⚖️ 패턴 계승형", desc: "최신 당첨 번호 중 1개를 이월시켜 연속성 확률을 보정합니다.", force: [prevNumbers[Math.floor(Math.random()*6)], hotNumbers[2]] },
-                    { title: "🌪️ 변동성 돌파형", desc: "실제 1등 조합에 자주 등장하는 연번(28,29 등)을 필터링하지 않고 허용합니다.", force: [28, 29] }
+                    { title: "🤖 AI 종합형", desc: "빈도, 흐름, 동반출현 등 모든 가중치를 복합 적용한 최적의 밸런스 조합입니다." },
+                    { title: "🔥 핵심축 중심형", desc: "방금 갱신된 최근 52주 최다 빈출 핵심번호를 묶어 조합합니다." },
+                    { title: "🎯 구간 몰림형", desc: "무작위 분산이 아닌, 현실적인 당첨 패턴인 20~30번대 집중 현상을 유도합니다." },
+                    { title: "⚖️ 패턴 계승형", desc: "최신 당첨 번호 중 1개를 이월시켜 연속성 확률을 보정합니다." },
+                    { title: "🌪️ 변동성 돌파형", desc: "실제 1등 조합에 자주 등장하는 연번(28,29 등)을 필터링하지 않고 허용합니다." }
                 ];
 
                 for(let i=0; i<count; i++) {
                     const theme = themes[i % themes.length];
-                    const nums = getRandomLottoNumbers(theme.force);
+                    const nums = getRandomLottoNumbers();
                     
                     let odd = nums.filter(n=>n%2!==0).length;
                     let sum = nums.reduce((a,b)=>a+b, 0);
