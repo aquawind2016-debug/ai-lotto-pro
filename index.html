@@ -210,11 +210,24 @@
 
         <!-- 탭 구조 -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="flex border-b border-slate-200 dark:border-slate-700 overflow-x-auto hide-scrollbar">
-                <button onclick="switchTab('recommend')" id="btn-recommend" class="min-w-[120px] flex-1 py-4 px-2 text-center font-bold text-brand-600 border-b-2 border-brand-600 bg-brand-50 dark:bg-slate-700 transition whitespace-nowrap">추천 결과</button>
-                <button onclick="switchTab('stats')" id="btn-stats" class="min-w-[120px] flex-1 py-4 px-2 text-center font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition whitespace-nowrap">52주 정밀 통계</button>
-                <button onclick="switchTab('db')" id="btn-db" class="min-w-[140px] flex-1 py-4 px-2 text-center font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition whitespace-nowrap">역대 당첨번호</button>
-                <button onclick="switchTab('columns')" id="btn-columns" class="min-w-[120px] flex-1 py-4 px-2 text-center font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition whitespace-nowrap">로또 분석 칼럼</button>
+            <div class="relative w-full border-b border-slate-200 dark:border-slate-700">
+                <!-- 왼쪽 스크롤 화살표 -->
+                <button id="tab-scroll-left" onclick="scrollTabs('left')" class="absolute left-0 top-0 bottom-0 w-14 bg-gradient-to-r from-white via-white/90 dark:from-slate-800 dark:via-slate-800/90 to-transparent flex items-center justify-start pl-2 hidden z-10 transition-opacity duration-300 pointer-events-auto">
+                    <div class="w-7 h-7 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center text-slate-500 hover:text-brand-500 transition"><i class="fa-solid fa-chevron-left text-[10px]"></i></div>
+                </button>
+
+                <!-- 탭 컨테이너 -->
+                <div id="tab-container" class="flex overflow-x-auto hide-scrollbar scroll-smooth relative" onscroll="checkTabScroll()">
+                    <button onclick="switchTab('recommend')" id="btn-recommend" class="min-w-[120px] flex-1 py-4 px-2 text-center font-bold text-brand-600 border-b-2 border-brand-600 bg-brand-50 dark:bg-slate-700 transition whitespace-nowrap">추천 결과</button>
+                    <button onclick="switchTab('stats')" id="btn-stats" class="min-w-[120px] flex-1 py-4 px-2 text-center font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition whitespace-nowrap">52주 정밀 통계</button>
+                    <button onclick="switchTab('db')" id="btn-db" class="min-w-[140px] flex-1 py-4 px-2 text-center font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition whitespace-nowrap">역대 당첨번호</button>
+                    <button onclick="switchTab('columns')" id="btn-columns" class="min-w-[120px] flex-1 py-4 px-2 text-center font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition whitespace-nowrap">로또 분석 칼럼</button>
+                </div>
+
+                <!-- 오른쪽 스크롤 화살표 -->
+                <button id="tab-scroll-right" onclick="scrollTabs('right')" class="absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-white via-white/90 dark:from-slate-800 dark:via-slate-800/90 to-transparent flex items-center justify-end pr-2 z-10 transition-opacity duration-300 pointer-events-auto">
+                    <div class="w-7 h-7 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center text-slate-500 hover:text-brand-500 transition"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+                </button>
             </div>
             
             <div class="p-4 sm:p-6 min-h-[400px]">
@@ -489,7 +502,11 @@
         let isUpdatingWeights = false;
         let currentMode = 'ai'; // 'ai' 또는 'custom'
 
-        window.onload = function() { initApp(); }
+        window.onload = function() { 
+            initApp(); 
+            setTimeout(checkTabScroll, 100); // 로드 후 탭 너비 계산 대기
+            window.addEventListener('resize', checkTabScroll); // 화면 크기 변경 시 재계산
+        }
 
         async function initApp() {
             document.getElementById('drawText').innerText = "공식 DB 동기화 완료";
@@ -575,6 +592,30 @@
             const icon = document.getElementById(id + 'Icon');
             if (content.classList.contains('hidden')) { content.classList.remove('hidden'); if(icon) icon.style.transform = 'rotate(180deg)'; } 
             else { content.classList.add('hidden'); if(icon) icon.style.transform = 'rotate(0deg)'; }
+        }
+
+        // [신규] 탭 스크롤 화살표 감지 및 표시 로직
+        function checkTabScroll() {
+            const container = document.getElementById('tab-container');
+            const leftArrow = document.getElementById('tab-scroll-left');
+            const rightArrow = document.getElementById('tab-scroll-right');
+            if (!container || !leftArrow || !rightArrow) return;
+
+            // 좌측 화살표 (스크롤이 1px이라도 이동했으면 표시)
+            if (container.scrollLeft > 0) leftArrow.classList.remove('hidden');
+            else leftArrow.classList.add('hidden');
+
+            // 우측 화살표 (스크롤이 끝에 도달하지 않았으면 표시, 모바일 오차 1~2px 보정)
+            if (Math.ceil(container.scrollLeft + container.clientWidth) < container.scrollWidth - 2) rightArrow.classList.remove('hidden');
+            else rightArrow.classList.add('hidden');
+        }
+
+        // [신규] 탭 스크롤 화살표 클릭 시 이동 로직
+        function scrollTabs(direction) {
+            const container = document.getElementById('tab-container');
+            const scrollAmount = 150; // 한 번 클릭 시 이동할 픽셀
+            if (direction === 'left') container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            else container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
 
         function switchTab(tabId) {
