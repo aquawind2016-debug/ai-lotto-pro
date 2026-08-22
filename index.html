@@ -14,7 +14,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 로또 공 디자인 */
         .lotto-ball {
             width: 36px; height: 36px;
             border-radius: 50%;
@@ -35,7 +34,6 @@
 
         .stat-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* 광고 배너 스타일 */
         .ad-space { background-color: #f1f5f9; border: 1px dashed #cbd5e1; display: flex; justify-content: center; align-items: center; color: #94a3b8; font-size: 13px; font-weight: 500; border-radius: 0.5rem; text-align: center; padding: 10px; }
         .dark .ad-space { background-color: #1e293b; border-color: #334155; color: #64748b; }
     </style>
@@ -220,6 +218,29 @@
                                     <option value="1">1개 포함</option>
                                     <option value="2">2개 포함</option>
                                 </select>
+                            </div>
+                            <!-- 번호 합계 구간 -->
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700 flex flex-col gap-2">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="chkSum" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                    <span class="text-sm font-bold text-slate-700 dark:text-slate-300">번호 합계 구간 지정</span>
+                                </label>
+                                <select id="selSum" class="w-full p-1.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded outline-none ml-6 w-[calc(100%-1.5rem)]">
+                                    <option value="0">100 미만</option>
+                                    <option value="1">100 ~ 119</option>
+                                    <option value="2">120 ~ 139</option>
+                                    <option value="3">140 ~ 159</option>
+                                    <option value="4">160 ~ 179</option>
+                                    <option value="5">180 이상</option>
+                                </select>
+                            </div>
+                            <!-- NEW: 죽음의 계곡 제외 -->
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700 flex flex-col justify-center gap-2 sm:col-span-2">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="chkDeathValley" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                    <span class="text-sm font-bold text-slate-700 dark:text-slate-300">💀 죽음의 계곡 (5~10주 미출현) 무조건 배제</span>
+                                </label>
+                                <div class="text-[11.5px] text-slate-500 ml-6 leading-tight">애매하게 모멘텀이 죽은 번호들을 완전히 제외하고 최근 강세 번호 위주로 구성 (※ 단, 반전을 노리는 COLD TOP 10 번호는 제외 대상에서 보호됨)</div>
                             </div>
                         </div>
                     </div>
@@ -837,6 +858,18 @@
                         </div>
                     `;
                     container.appendChild(gameDiv);
+
+                    // 추천 결과 중간 인피드 광고 삽입 (정확히 절반 위치에 1회 삽입)
+                    if (count > 1 && i === Math.floor(count / 2) - 1) {
+                        const adDiv = document.createElement('div');
+                        adDiv.className = "w-full my-2 relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 min-h-[100px] flex justify-center items-center";
+                        adDiv.innerHTML = `
+                            <div class="absolute inset-0 flex justify-center items-center text-slate-400 text-xs sm:text-sm font-medium -z-10">
+                                <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 추천 결과 인피드(콘텐츠 내) 맞춤 광고 영역
+                            </div>
+                        `;
+                        container.appendChild(adDiv);
+                    }
                 }
                 document.getElementById('loadingState').classList.add('hidden');
                 document.getElementById('resultState').classList.remove('hidden');
@@ -868,6 +901,9 @@
                 const chkExcludeCold = document.getElementById('chkExcludeCold').checked;
                 const chkCold6to10 = document.getElementById('chkCold6to10').checked;
                 const reqCold6to10Cnt = parseInt(document.getElementById('selCold6to10').value);
+                const chkSum = document.getElementById('chkSum').checked;
+                const reqSumRange = parseInt(document.getElementById('selSum').value);
+                const chkDeathValley = document.getElementById('chkDeathValley').checked;
 
                 // 동적 기간에 따른 빈출수(TOP 10) 세팅
                 const periodData = LOTTO_DATA.slice(0, period);
@@ -887,6 +923,14 @@
                 const top5ColdNums = sortedGaps.slice(0, 5).map(s => s.num);
                 const cold6to10Nums = sortedGaps.slice(5, 10).map(s => s.num);
 
+                const deathValleyNums = [];
+                for(let i=1; i<=45; i++) {
+                    // 5~10주 미출현 중, COLD TOP 10(보호 대상)이 아닌 애매한 번호들만 추출
+                    if(gaps[i] >= 5 && gaps[i] <= 10 && !top5ColdNums.includes(i) && !cold6to10Nums.includes(i)) {
+                        deathValleyNums.push(i);
+                    }
+                }
+
                 const prevNumbers = LOTTO_DATA[0].numbers; // 최근 회차 (이월수 용)
 
                 let generatedGames = 0;
@@ -899,6 +943,10 @@
                     
                     if(chkExcludeCold) {
                         if(nums.some(n => top5ColdNums.includes(n))) continue;
+                    }
+
+                    if(chkDeathValley) {
+                        if(nums.some(n => deathValleyNums.includes(n))) continue;
                     }
 
                     let passFreq = true;
@@ -964,7 +1012,18 @@
                         }
                     }
 
-                    if(passFreq && passCluster && passCarry && passConsec && passCold6to10 && passClusterConsecSynergy) {
+                    let passSum = true;
+                    let currentSum = nums.reduce((a, b) => a + b, 0);
+                    if(chkSum) {
+                        if(reqSumRange === 0 && currentSum >= 100) passSum = false;
+                        else if(reqSumRange === 1 && (currentSum < 100 || currentSum >= 120)) passSum = false;
+                        else if(reqSumRange === 2 && (currentSum < 120 || currentSum >= 140)) passSum = false;
+                        else if(reqSumRange === 3 && (currentSum < 140 || currentSum >= 160)) passSum = false;
+                        else if(reqSumRange === 4 && (currentSum < 160 || currentSum >= 180)) passSum = false;
+                        else if(reqSumRange === 5 && currentSum < 180) passSum = false;
+                    }
+
+                    if(passFreq && passCluster && passCarry && passConsec && passCold6to10 && passClusterConsecSynergy && passSum) {
                         // 모든 조건 통과 시 출력
                         let odd = nums.filter(n=>n%2!==0).length;
                         let sum = nums.reduce((a,b)=>a+b, 0);
@@ -981,6 +1040,11 @@
                         if(chkCarry) appliedFilters.push(`이월수 ${reqCarryCnt}개`);
                         if(chkConsec) appliedFilters.push(`연번 ${reqConsecCnt}쌍`);
                         if(chkCold6to10) appliedFilters.push(`COLD반전 ${reqCold6to10Cnt}개`);
+                        if(chkSum) {
+                            const sumRangeNames = ["100미만", "100~119", "120~139", "140~159", "160~179", "180이상"];
+                            appliedFilters.push(`합계 ${sumRangeNames[reqSumRange]}`);
+                        }
+                        if(chkDeathValley) appliedFilters.push(`죽음의계곡 배제`);
                         if(appliedFilters.length === 1) descHtml += "조건 없음 (완전 무작위)";
                         else descHtml += appliedFilters.join(' + ');
 
@@ -1002,6 +1066,18 @@
                         `;
                         container.appendChild(gameDiv);
                         generatedGames++;
+
+                        // 추천 결과 중간 인피드 광고 삽입 (정확히 절반 위치에 1회 삽입)
+                        if (count > 1 && generatedGames === Math.floor(count / 2)) {
+                            const adDiv = document.createElement('div');
+                            adDiv.className = "w-full my-2 relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 min-h-[100px] flex justify-center items-center";
+                            adDiv.innerHTML = `
+                                <div class="absolute inset-0 flex justify-center items-center text-slate-400 text-xs sm:text-sm font-medium -z-10">
+                                    <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 추천 결과 인피드(콘텐츠 내) 맞춤 광고 영역
+                                </div>
+                            `;
+                            container.appendChild(adDiv);
+                        }
                     }
                 }
 
@@ -1400,6 +1476,12 @@
                 if(carryNums.length > 0) tags += `<span class="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 text-[10px] px-2 py-0.5 rounded font-bold mr-1">이월수(${carryNums.join(',')})</span>`;
                 if(clusteredDecade !== "") tags += `<span class="bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 text-[10px] px-2 py-0.5 rounded font-bold mr-1">구간몰림(${clusteredDecade})</span>`;
                 if(tags === '') tags = `<span class="bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 text-[10px] px-2 py-0.5 rounded font-bold mr-1">균형분산</span>`;
+
+                let oddCnt = item.numbers.filter(n => n % 2 !== 0).length;
+                let evenCnt = 6 - oddCnt;
+                let totalSum = item.numbers.reduce((a, b) => a + b, 0);
+                tags += `<span class="bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 text-[10px] px-2 py-0.5 rounded font-bold mr-1 border border-slate-200 dark:border-slate-600">홀짝(${oddCnt}:${evenCnt})</span>`;
+                tags += `<span class="bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 text-[10px] px-2 py-0.5 rounded font-bold mr-1 border border-slate-200 dark:border-slate-600">합계(${totalSum})</span>`;
 
                 let analysisText = "";
                 if(consecPairs.length > 0 && carryNums.length > 0) analysisText = "직전 회차 번호가 다시 출현(이월)하며, 동시에 연속번호 패턴이 등장한 실전 패턴입니다.";
