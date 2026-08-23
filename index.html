@@ -33,9 +33,6 @@
         .ball-gr { background: linear-gradient(135deg, #b0d840, #8bad28); }/* 41~45 */
 
         .stat-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        .ad-space { background-color: #f1f5f9; border: 1px dashed #cbd5e1; display: flex; justify-content: center; align-items: center; color: #94a3b8; font-size: 13px; font-weight: 500; border-radius: 0.5rem; text-align: center; padding: 10px; }
-        .dark .ad-space { background-color: #1e293b; border-color: #334155; color: #64748b; }
     </style>
     <script>
         tailwind.config = {
@@ -259,7 +256,7 @@
                                     <option value="5">180 이상</option>
                                 </select>
                             </div>
-                            <!-- NEW: 죽음의 계곡 제외 -->
+                            <!-- 죽음의 계곡 제외 -->
                             <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700 flex flex-col justify-center gap-2 sm:col-span-2">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="checkbox" id="chkDeathValley" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
@@ -387,9 +384,20 @@
                             </div>
                         </div>
 
-                        <!-- 중간 인피드 광고 배너 -->
-                        <div class="ad-space w-full h-[100px] my-4 shadow-sm">
-                            <i class="fa-solid fa-rectangle-ad mr-2 text-slate-400"></i> 구글 애드센스 정밀 통계 인피드(콘텐츠 내) 맞춤형 광고 배너 영역
+                        <!-- 중간 인피드 광고 배너 (수정됨) -->
+                        <div class="w-full my-4 relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 min-h-[100px] flex justify-center items-center">
+                            <div class="absolute inset-0 flex justify-center items-center text-slate-400 text-xs sm:text-sm font-medium -z-10">
+                                <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 정밀 통계 인피드 광고 영역
+                            </div>
+                            <ins class="adsbygoogle"
+                                 style="display:block; width:100%;"
+                                 data-ad-format="fluid"
+                                 data-ad-layout-key="-6t+ed+2i-1n-4w"
+                                 data-ad-client="ca-pub-8881745451204327"
+                                 data-ad-slot="통계_인피드_슬롯_ID_입력"></ins>
+                            <script>
+                                 (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
                         </div>
 
                         <!-- 2열: 번호 합계 분포 & 끝수 분석 & 동반출현 TOP 쌍 -->
@@ -712,26 +720,24 @@
             else { content.classList.add('hidden'); if(icon) icon.style.transform = 'rotate(0deg)'; }
         }
 
-        // [신규] 탭 스크롤 화살표 감지 및 표시 로직
+        // 탭 스크롤 화살표 감지 및 표시 로직
         function checkTabScroll() {
             const container = document.getElementById('tab-container');
             const leftArrow = document.getElementById('tab-scroll-left');
             const rightArrow = document.getElementById('tab-scroll-right');
             if (!container || !leftArrow || !rightArrow) return;
 
-            // 좌측 화살표 (스크롤이 1px이라도 이동했으면 표시)
             if (container.scrollLeft > 0) leftArrow.classList.remove('hidden');
             else leftArrow.classList.add('hidden');
 
-            // 우측 화살표 (스크롤이 끝에 도달하지 않았으면 표시, 모바일 오차 1~2px 보정)
             if (Math.ceil(container.scrollLeft + container.clientWidth) < container.scrollWidth - 2) rightArrow.classList.remove('hidden');
             else rightArrow.classList.add('hidden');
         }
 
-        // [신규] 탭 스크롤 화살표 클릭 시 이동 로직
+        // 탭 스크롤 화살표 클릭 시 이동 로직
         function scrollTabs(direction) {
             const container = document.getElementById('tab-container');
-            const scrollAmount = 150; // 한 번 클릭 시 이동할 픽셀
+            const scrollAmount = 150;
             if (direction === 'left') container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             else container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
@@ -828,7 +834,6 @@
             return selected.sort((a, b) => a - b);
         }
 
-        /* ------------------------- 확률 조종석 셋팅 로직 ------------------------- */
         function setStrategy(type) {
             // 모든 체크 해제 초기화
             document.getElementById('chkFreq').checked = false;
@@ -870,7 +875,6 @@
             }
         }
 
-        /* ------------------------- AI 추천 추출 로직 ------------------------- */
         function generateCombinations() {
             if (LOTTO_DATA.length === 0) return;
             document.getElementById('emptyState').classList.add('hidden');
@@ -926,20 +930,20 @@
                     `;
                     container.appendChild(gameDiv);
 
-                    // 추천 결과 중간 인피드 광고 삽입 (정확히 절반 위치에 1회 삽입)
+                    // 추천 결과 중간 인피드 동적 광고 삽입 
                     if (count > 1 && i === Math.floor(count / 2) - 1) {
                         const adDiv = document.createElement('div');
                         adDiv.className = "w-full my-2 relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 min-h-[100px] flex justify-center items-center";
                         adDiv.innerHTML = `
                             <div class="absolute inset-0 flex justify-center items-center text-slate-400 text-xs sm:text-sm font-medium -z-10">
-                                <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 추천 결과 인피드(콘텐츠 내) 맞춤 광고 영역
+                                <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 추천 결과 인피드 광고 영역
                             </div>
                             <ins class="adsbygoogle"
                                  style="display:block; width:100%;"
                                  data-ad-format="fluid"
                                  data-ad-layout-key="-6t+ed+2i-1n-4w"
                                  data-ad-client="ca-pub-8881745451204327"
-                                 data-ad-slot="인피드_슬롯_ID_입력"></ins>
+                                 data-ad-slot="추천결과_인피드_슬롯_ID_입력"></ins>
                         `;
                         container.appendChild(adDiv);
                         try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
@@ -950,7 +954,6 @@
             }, 800);
         }
 
-        /* ------------------------- 사용자 맞춤 전략 추출 로직 ------------------------- */
         function generateCustomCombinations() {
             if (LOTTO_DATA.length === 0) return;
             document.getElementById('emptyState').classList.add('hidden');
@@ -1159,20 +1162,20 @@
                         container.appendChild(gameDiv);
                         generatedGames++;
 
-                        // 추천 결과 중간 인피드 광고 삽입 (정확히 절반 위치에 1회 삽입)
+                        // 추천 결과 중간 인피드 광고 삽입
                         if (count > 1 && generatedGames === Math.floor(count / 2)) {
                             const adDiv = document.createElement('div');
                             adDiv.className = "w-full my-2 relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 min-h-[100px] flex justify-center items-center";
                             adDiv.innerHTML = `
                                 <div class="absolute inset-0 flex justify-center items-center text-slate-400 text-xs sm:text-sm font-medium -z-10">
-                                    <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 추천 결과 인피드(콘텐츠 내) 맞춤 광고 영역
+                                    <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 추천 결과 인피드 광고 영역
                                 </div>
                                 <ins class="adsbygoogle"
                                      style="display:block; width:100%;"
                                      data-ad-format="fluid"
                                      data-ad-layout-key="-6t+ed+2i-1n-4w"
                                      data-ad-client="ca-pub-8881745451204327"
-                                     data-ad-slot="인피드_슬롯_ID_입력"></ins>
+                                     data-ad-slot="추천결과_인피드_슬롯_ID_입력"></ins>
                             `;
                             container.appendChild(adDiv);
                             try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
@@ -1192,7 +1195,6 @@
             }, 800);
         }
 
-        /* ------------------------- 정밀 통계 & 종합 분석 렌더링 ------------------------- */
         function calcStatsForPeriod(period) {
             if(LOTTO_DATA.length < period) return null;
             const recentData = LOTTO_DATA.slice(0, period);
@@ -1607,10 +1609,26 @@
                 `;
                 tbody.appendChild(tr);
 
+                // DB 목록 중간 인피드 동적 광고 삽입
                 if ((index + 1) % 10 === 0 && index !== pageData.length - 1) {
                     const adTr = document.createElement('tr');
-                    adTr.innerHTML = `<td colspan="2" class="p-3 bg-slate-50/50 dark:bg-slate-900/30"><div class="ad-space w-full h-[70px]"><i class="fa-solid fa-rectangle-ad mr-1"></i> 구글 애드센스 인피드(목록형) 맞춤 광고 영역</div></td>`;
+                    adTr.innerHTML = `
+                        <td colspan="2" class="p-0 border-b border-slate-100 dark:border-slate-700/50">
+                            <div class="w-full relative overflow-hidden bg-slate-50/50 dark:bg-slate-900/30 min-h-[90px] flex justify-center items-center">
+                                <div class="absolute inset-0 flex justify-center items-center text-slate-400 text-xs sm:text-sm font-medium -z-10">
+                                    <i class="fa-solid fa-rectangle-ad mr-1.5"></i> 구글 애드센스 목록형 맞춤 광고 영역
+                                </div>
+                                <ins class="adsbygoogle"
+                                     style="display:block; width:100%;"
+                                     data-ad-format="fluid"
+                                     data-ad-layout-key="-6t+ed+2i-1n-4w"
+                                     data-ad-client="ca-pub-8881745451204327"
+                                     data-ad-slot="목록형_슬롯_ID_입력"></ins>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(adTr);
+                    try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
                 }
             });
             renderPagination();
